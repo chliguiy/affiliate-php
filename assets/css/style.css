@@ -1,0 +1,329 @@
+/* Variables globales */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --accent-color: #e74c3c;
+    --text-color: #333;
+    --bg-color: #fff;
+}
+
+/* Styles de base */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background: linear-gradient(135deg, #6a82fb 0%, #4B5BA6 100%);
+    overflow-x: hidden;
+}
+
+/* Styles de la barre de navigation */
+.navbar {
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    padding: 1rem 0;
+}
+
+.navbar.scrolled {
+    background: rgba(255, 255, 255, 0.98) !important;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0;
+}
+
+/* Styles de la section hero */
+.hero-section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: linear-gradient(135deg, rgba(26, 95, 122, 0.9) 0%, rgba(44, 62, 80, 0.9) 100%),
+                url('../images/hero-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    color: white;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 900px;
+    padding: 2rem;
+    margin-top: 60px;
+    animation: fadeIn 1.5s ease-out;
+}
+
+.hero-title {
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    animation: slideInDown 1.2s ease-out;
+    line-height: 1.2;
+}
+
+.hero-subtitle {
+    font-size: 1.8rem;
+    margin-bottom: 2.5rem;
+    opacity: 0.95;
+    line-height: 1.6;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    animation: slideInUp 1.2s ease-out 0.5s;
+    animation-fill-mode: both;
+}
+
+.hero-cta {
+    animation: fadeInUp 1s ease-out 1s;
+    animation-fill-mode: both;
+}
+
+.hero-cta .btn {
+    padding: 1.2rem 3rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: #e74c3c;
+    border: none;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-cta .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: translateX(-100%);
+    transition: 0.6s;
+}
+
+.hero-cta .btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+}
+
+.hero-cta .btn:hover::before {
+    transform: translateX(100%);
+}
+
+/* Animations */
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Particules */
+.particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    animation: float 20s infinite linear;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0) translateX(0) scale(1);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh) translateX(100vw) scale(0);
+        opacity: 0;
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.8rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.4rem;
+    }
+    
+    .hero-cta .btn {
+        padding: 1rem 2.5rem;
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 2.2rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.2rem;
+    }
+    
+    .hero-cta .btn {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+    }
+}
+
+.sidebar h3 {
+    background: #4B5BA6;
+    color: #fff;
+    padding: 1.5rem 0 1rem 0;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    text-align: center;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+}
+
+.dashboard-icons-bar {
+    position: absolute;
+    top: 32px;
+    right: 48px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: rgba(123,140,255,0.18);
+    border-radius: 32px;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+    padding: 7px 18px 7px 14px;
+    z-index: 100;
+    border: 1px solid rgba(123,140,255,0.13);
+}
+.dashboard-icons-bar a, .dashboard-icons-bar i {
+    font-size: 1.18rem;
+    color: #fff;
+    transition: color 0.2s, background 0.2s, box-shadow 0.2s;
+    border-radius: 50%;
+    padding: 6px;
+    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.dashboard-icons-bar a:hover, .dashboard-icons-bar i:hover {
+    background: rgba(255,255,255,0.13);
+    color: #1976d2;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+}
+.dashboard-icons-bar .fa-bell {
+    color: #fff;
+    position: relative;
+}
+.dashboard-icons-bar .badge {
+    position: absolute;
+    top: 0px;
+    right: -2px;
+    font-size: 0.65rem;
+    background: #ff5e5e;
+    color: #fff;
+    border-radius: 8px;
+    padding: 1px 5px;
+    font-weight: 600;
+    box-shadow: none;
+    border: 1px solid #fff;
+}
+.dashboard-icons-bar .dropdown-whatsapp {
+    position: relative;
+    display: inline-block;
+}
+.dashboard-icons-bar .dropdown-menu-whatsapp {
+    display: none;
+    position: absolute;
+    top: 36px;
+    right: 0;
+    min-width: 220px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 24px rgba(44,62,80,0.10);
+    padding: 10px 0;
+    z-index: 200;
+    border: 1px solid #f0f0f0;
+}
+.dashboard-icons-bar .dropdown-whatsapp.open .dropdown-menu-whatsapp {
+    display: block;
+}
+.dashboard-icons-bar .dropdown-menu-whatsapp a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 22px;
+    color: #222;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: background 0.15s;
+}
+.dashboard-icons-bar .dropdown-menu-whatsapp a:hover {
+    background: #f5f8ff;
+}
+.dashboard-icons-bar .dropdown-menu-whatsapp i {
+    font-size: 1.2rem;
+    min-width: 22px;
+    text-align: center;
+} 

@@ -1,0 +1,1 @@
+ALTER TABLE orders ADD COLUMN commission_paid_at DATETIME NULL DEFAULT NULL; 

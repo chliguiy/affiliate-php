@@ -1,0 +1,3 @@
+<?php
+// ... contenu original de index.php ...
+?> 
