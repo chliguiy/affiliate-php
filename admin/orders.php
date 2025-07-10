@@ -9,6 +9,47 @@ $conn = $database->getConnection();
 // Process POST actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     switch ($_POST['action']) {
+        case 'refresh_orders':
+            try {
+                $stmt = $conn->prepare("SELECT * FROM orders WHERE status IN ('processing', 'shipped') AND delivery_number IS NOT NULL");
+                $stmt->execute();
+                $orders = $stmt->fetchAll();
+
+                foreach ($orders as $order) {
+                    try {
+                        $deliveryNumber = $order['delivery_number'];
+                        $responseJson = $apiDelivery->getParcel($deliveryNumber);
+                        $response = json_decode($responseJson, true);
+
+                        if ($response && isset($response['staus_name'])) {
+                            $apiStatus = strtolower($response['staus_name']);
+                            $newStatus = match ($apiStatus) {
+                                'nouvelle demande' => 'processing',
+                                'prenez' => 'shipped',
+                                'livré' => 'delivered',
+                                'retourne' => 'returned',
+                                'annulé' => 'cancelled',
+                                default => $order['status']
+                            };
+
+                            if ($newStatus !== $order['status']) {
+                                $stmtUpdate = $conn->prepare("UPDATE orders SET status = ? WHERE id = ?");
+                                $stmtUpdate->execute([$newStatus, $order['id']]);
+                            }
+                        } else {
+                            throw new Exception("Réponse API invalide pour le colis: " . $deliveryNumber);
+                        }
+                    } catch (Exception $e) {
+                        error_log("Erreur sur la commande ID {$order['id']}: " . $e->getMessage());
+                    }
+                }
+
+                $_SESSION['success_message'] = "Les statuts des commandes ont été mis à jour.";
+            } catch (Exception $e) {
+                $_SESSION['error_message'] = "Erreur de mise à jour des commandes: " . $e->getMessage();
+            }
+            break;
+
         case 'send_delivery':
             try {
 
@@ -136,13 +177,13 @@ $orders = $conn->query($query)->fetchAll();
     <h1>Gestion des commandes</h1>
 
     <?php if (!empty($_SESSION['success_message'])): ?>
-                <div class="alert alert-success"><?php echo $_SESSION['success_message'];
-                unset($_SESSION['success_message']); ?></div>
+                                <div class="alert alert-success"><?php echo $_SESSION['success_message'];
+                                unset($_SESSION['success_message']); ?></div>
     <?php endif; ?>
 
     <?php if (!empty($_SESSION['error_message'])): ?>
-                <div class="alert alert-danger"><?php echo $_SESSION['error_message'];
-                unset($_SESSION['error_message']); ?></div>
+                                <div class="alert alert-danger"><?php echo $_SESSION['error_message'];
+                                unset($_SESSION['error_message']); ?></div>
     <?php endif; ?>
 
     <!-- Filters -->
@@ -151,8 +192,8 @@ $orders = $conn->query($query)->fetchAll();
             <select name="status" class="form-select" onchange="this.form.submit()">
                 <option value="">Tous les statuts</option>
                 <?php foreach (['new', 'unconfirmed', 'confirmed', 'processing', 'shipped', 'delivered', 'returned', 'cancelled'] as $status): ?>
-                            <option value="<?php echo $status; ?>" <?php if ($status_filter === $status)
-                                   echo 'selected'; ?>><?php echo ucfirst($status); ?></option>
+                                            <option value="<?php echo $status; ?>" <?php if ($status_filter === $status)
+                                                   echo 'selected'; ?>><?php echo ucfirst($status); ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -160,14 +201,19 @@ $orders = $conn->query($query)->fetchAll();
             <select name="payment" class="form-select" onchange="this.form.submit()">
                 <option value="">Tous les paiements</option>
                 <?php foreach (['pending', 'paid', 'refunded'] as $pay): ?>
-                            <option value="<?php echo $pay; ?>" <?php if ($payment_filter === $pay)
-                                   echo 'selected'; ?>><?php echo ucfirst($pay); ?></option>
+                                            <option value="<?php echo $pay; ?>" <?php if ($payment_filter === $pay)
+                                                   echo 'selected'; ?>><?php echo ucfirst($pay); ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
         <div class="col-md-3">
             <input type="date" name="date" class="form-control" value="<?php echo htmlspecialchars($date_filter); ?>" onchange="this.form.submit()">
         </div>
+    </form>
+
+    <form method="POST" class="d-inline">
+        <input type="hidden" name="action" value="refresh_orders">
+        <button type="submit" class="btn btn-info mb-3">🔄 Rafraîchir les statuts des commandes</button>
     </form>
 
     <!-- Orders Table -->
@@ -192,22 +238,22 @@ $orders = $conn->query($query)->fetchAll();
             </thead>
             <tbody>
             <?php foreach ($orders as $order): ?>
-                        <tr>
-                            <td><input type="checkbox" name="order_ids[]" value="<?php echo $order['id']; ?>" class="order-checkbox" <?php echo ($order['status'] === 'confirmed') ? '' : 'disabled'; ?>></td>
-                            <td><?php echo htmlspecialchars($order['order_number']); ?></td>
-                            <td><?php echo htmlspecialchars($order['customer_name']); ?><br><small><?php echo htmlspecialchars($order['customer_email']); ?></small></td>
-                            <td><?php echo number_format($order['final_sale_price'], 2); ?> MAD</td>
-                            <td><?php echo number_format($order['commission_amount'], 2); ?> MAD</td>
-                            <td><?php echo $order['items_count']; ?></td>
-                            <td><span class="badge bg-secondary"><?php echo $order['status']; ?></span></td>
-                            <td><span class="badge bg-secondary"><?php echo $order['payment_status'] ?? 'N/A'; ?></span></td>
-                            <td><?php echo date('d/m/Y', strtotime($order['created_at'])); ?></td>
-                            <td><?php echo htmlspecialchars($order['affiliate_name'] ?? 'N/A'); ?></td>
-                            <td>
-                                <a href="order_view.php?id=<?php echo $order['id']; ?>" class="btn btn-sm btn-primary">Voir</a>
-                                <button type="button" class="btn btn-sm btn-danger delete-order" data-id="<?php echo $order['id']; ?>">Supprimer</button>
-                            </td>
-                        </tr>
+                                        <tr>
+                                            <td><input type="checkbox" name="order_ids[]" value="<?php echo $order['id']; ?>" class="order-checkbox" <?php echo ($order['status'] === 'confirmed') ? '' : 'disabled'; ?>></td>
+                                            <td><?php echo htmlspecialchars($order['order_number']); ?></td>
+                                            <td><?php echo htmlspecialchars($order['customer_name']); ?><br><small><?php echo htmlspecialchars($order['customer_email']); ?></small></td>
+                                            <td><?php echo number_format($order['final_sale_price'], 2); ?> MAD</td>
+                                            <td><?php echo number_format($order['commission_amount'], 2); ?> MAD</td>
+                                            <td><?php echo $order['items_count']; ?></td>
+                                            <td><span class="badge bg-secondary"><?php echo $order['status']; ?></span></td>
+                                            <td><span class="badge bg-secondary"><?php echo $order['payment_status'] ?? 'N/A'; ?></span></td>
+                                            <td><?php echo date('d/m/Y', strtotime($order['created_at'])); ?></td>
+                                            <td><?php echo htmlspecialchars($order['affiliate_name'] ?? 'N/A'); ?></td>
+                                            <td>
+                                                <a href="order_view.php?id=<?php echo $order['id']; ?>" class="btn btn-sm btn-primary">Voir</a>
+                                                <button type="button" class="btn btn-sm btn-danger delete-order" data-id="<?php echo $order['id']; ?>">Supprimer</button>
+                                            </td>
+                                        </tr>
             <?php endforeach; ?>
             </tbody>
         </table>

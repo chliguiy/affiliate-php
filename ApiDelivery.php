@@ -1,14 +1,17 @@
 <?php
 
-class ApiDelivery {
+class ApiDelivery
+{
     private $baseUrl = 'https://stilam.ma/api/v1';  // ✅ Base URL
     private $apiKey = '39|Isa7W9LGOnIxOkHEND2qjc8UUUwvP0wUYd9JEL9Pec734eca';  // ✅ API Key
 
-    public function __construct() {
+    public function __construct()
+    {
         // Nothing to initialize since baseUrl and apiKey are predefined
     }
 
-    private function get($endpoint) {
+    private function get($endpoint)
+    {
         $url = $this->baseUrl . '/' . ltrim($endpoint, '/');
 
         $ch = curl_init();
@@ -35,15 +38,27 @@ class ApiDelivery {
         curl_close($ch);
         return $response;
     }
-     /**
+    /**
      * Fetches cities from the API
      */
-    public function getCities() {
+    public function getCities()
+    {
         return $this->get('cities');
     }
 
-    public function createParcel(array $parcelData) {
-        echo''. json_encode($parcelData) .'';
+    /**
+     * Retrieve parcel information by tracking number.
+     *
+     * @param string $trackingNum The tracking number of the parcel.
+     * @return mixed The API response containing parcel details.
+     */
+    public function getParcel(string $trackingNum)
+    {
+        return $this->get('/parcel/' . $trackingNum);
+    }
+    public function createParcel(array $parcelData)
+    {
+        echo '' . json_encode($parcelData) . '';
         $url = $this->baseUrl . '/parcels';
 
         $ch = curl_init();
